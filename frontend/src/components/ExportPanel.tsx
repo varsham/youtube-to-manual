@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { FileText, FileDown, Wand2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardHeader, CardContent } from "./ui/card";
@@ -11,6 +12,7 @@ interface Props {
 
 export function ExportPanel({ job }: Props) {
   const analyzeAll = useAnalyzeAllSteps(job.id);
+  const [includeCheckpoints, setIncludeCheckpoints] = useState(true);
 
   const handleDownload = (url: string, filename: string) => {
     const a = document.createElement("a");
@@ -43,11 +45,20 @@ export function ExportPanel({ job }: Props) {
           <FileText className="w-3.5 h-3.5" />
           Download Markdown
         </Button>
+        <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={includeCheckpoints}
+            onChange={(e) => setIncludeCheckpoints(e.target.checked)}
+            className="rounded"
+          />
+          Include checkpoints
+        </label>
         <Button
           variant="outline"
           size="sm"
           className="w-full justify-start"
-          onClick={() => handleDownload(api.export.pdfUrl(job.id), `${safeTitle}.pdf`)}
+          onClick={() => handleDownload(api.export.pdfUrl(job.id, includeCheckpoints), `${safeTitle}.pdf`)}
         >
           <FileDown className="w-3.5 h-3.5" />
           Download PDF

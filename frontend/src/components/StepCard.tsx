@@ -8,6 +8,7 @@ import { StepControlPanel } from "./StepControlPanel";
 import { CorrectionModal } from "./CorrectionModal";
 import { useEditStep } from "../hooks/useStep";
 import { formatTimestamp, youtubeAtTime } from "../lib/utils";
+import { resolveFrameUrl } from "../lib/api";
 import type { Step } from "../types";
 
 interface Props {
@@ -150,8 +151,8 @@ export function StepCard({ jobId, step, allSteps, index, youtubeUrl }: Props) {
             {/* Before / After images */}
             {(step.before_frame_url || step.after_frame_url) && (
               <div className="px-4 pb-3 grid grid-cols-2 gap-3">
-                <FrameImage url={step.before_frame_url} label="Before" />
-                <FrameImage url={step.after_frame_url} label="After" />
+                <FrameImage url={resolveFrameUrl(step.before_frame_url)} label="Before" />
+                <FrameImage url={resolveFrameUrl(step.after_frame_url)} label="After" />
               </div>
             )}
 

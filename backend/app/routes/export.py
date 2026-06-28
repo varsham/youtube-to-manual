@@ -1,7 +1,7 @@
 """
 Export endpoints: Markdown and PDF generation.
 """
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import Response, PlainTextResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -85,10 +85,18 @@ async def export_markdown(job_id: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/pdf")
-async def export_pdf(job_id: str, db: AsyncSession = Depends(get_db)):
+async def export_pdf(
+    job_id: str,
+    include_checkpoints: bool = Query(True),
+    db: AsyncSession = Depends(get_db),
+):
     """Export steps as PDF."""
     job_data, steps_data = await _load_job_and_steps(job_id, db)
-    pdf_bytes = generate_pdf(job_data, steps_data, frames_dir_base=settings.frames_dir)
+    pdf_bytes = generate_pdf(
+        job_data, steps_data,
+        frames_dir_base=settings.frames_dir,
+        include_checkpoints=include_checkpoints,
+    )
     filename = f"{job_data['video_title'] or 'manual'}.pdf"
     filename = "".join(c if c.isalnum() or c in "- _." else "_" for c in filename)
     return Response(

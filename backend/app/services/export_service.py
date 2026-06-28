@@ -55,7 +55,7 @@ def generate_markdown(job: dict, steps: list[dict], backend_url: str) -> str:
     return "\n".join(lines)
 
 
-def generate_pdf(job: dict, steps: list[dict], frames_dir_base: str) -> bytes:
+def generate_pdf(job: dict, steps: list[dict], frames_dir_base: str, include_checkpoints: bool = True) -> bytes:
     """Generate PDF from job steps using reportlab."""
     buf = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -147,7 +147,7 @@ def generate_pdf(job: dict, steps: list[dict], frames_dir_base: str) -> bytes:
         explanation = step.get("explanation", "").replace("\n", "<br/>")
         step_elements.append(Paragraph(explanation, body_style))
 
-        if step.get("checkpoint"):
+        if include_checkpoints and step.get("checkpoint"):
             checkpoint_text = f"<b>Checkpoint:</b> {step['checkpoint']}"
             step_elements.append(Paragraph(checkpoint_text, checkpoint_style))
 
