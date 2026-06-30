@@ -106,6 +106,30 @@ Steps stored → served to UI
 | GET | `/api/jobs/{id}/export/markdown` | Export as Markdown |
 | GET | `/api/jobs/{id}/export/pdf` | Export as PDF |
 
+## Deploying
+
+FastAPI serves the built frontend directly, so the whole app is one
+deployable unit:
+
+```bash
+cd frontend && npm run build   # outputs frontend/dist
+cd ../backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+`backend/Procfile` defines two process types — deploy both:
+
+- `web` — the FastAPI app above (serves the API and the built frontend)
+- `worker` — the Celery worker that runs the actual pipeline jobs
+
+You'll also need a Redis instance for `REDIS_URL` and a Postgres database
+for `DATABASE_URL` (SQLite works for local dev but isn't safe for a
+multi-process deploy). One free/cheap option that maps directly onto this
+Procfile: [Render](https://render.com) — create a Web Service for `web`,
+a Background Worker for `worker`, both pointed at this repo with build
+command `cd frontend && npm install && npm run build && cd ../backend && pip
+install -r requirements.txt`, plus a managed Redis and Postgres instance.
+Render gives you one URL for the web service — that's the link to share.
+
 ## Getting an NVIDIA API Key
 
 1. Go to https://integrate.api.nvidia.com

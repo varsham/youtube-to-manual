@@ -3,6 +3,7 @@ FastAPI application entry point.
 """
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +13,9 @@ from fastapi.responses import FileResponse
 from app.config import settings
 from app.database import init_db
 from app.routes import jobs, steps, export
+
+# backend/app/main.py -> backend/ -> project root -> frontend/dist
+FRONTEND_DIST = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
 
 
 @asynccontextmanager
@@ -65,3 +69,16 @@ async def serve_frame(job_id: str, frame_id: str):
 @app.get("/health")
 async def health():
     return {"status": "ok", "version": "1.0.0"}
+
+
+# Serve the built React app (present after `npm run build`). Registered last
+# so it never shadows the /api, /frames, or /health routes above.
+if FRONTEND_DIST.is_dir():
+    app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="frontend-assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        candidate = FRONTEND_DIST / full_path
+        if full_path and candidate.is_file():
+            return FileResponse(candidate)
+        return FileResponse(FRONTEND_DIST / "index.html")

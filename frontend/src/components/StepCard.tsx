@@ -92,7 +92,7 @@ export function StepCard({ jobId, step, allSteps, index, youtubeUrl }: Props) {
             <div className="flex items-center gap-2 flex-wrap">
               <EditableField
                 value={step.title}
-                onSave={(v) => editStep.mutateAsync({ stepId: step.id, fields: { title: v } })}
+                onSave={async (v) => { await editStep.mutateAsync({ stepId: step.id, fields: { title: v } }); }}
                 displayClassName="font-semibold text-slate-800 text-sm"
               />
               {corrBadge && (
@@ -160,7 +160,7 @@ export function StepCard({ jobId, step, allSteps, index, youtubeUrl }: Props) {
             <div className="px-4 pb-3">
               <EditableField
                 value={step.explanation}
-                onSave={(v) => editStep.mutateAsync({ stepId: step.id, fields: { explanation: v } })}
+                onSave={async (v) => { await editStep.mutateAsync({ stepId: step.id, fields: { explanation: v } }); }}
                 multiline
                 displayClassName="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap"
               />
@@ -175,7 +175,7 @@ export function StepCard({ jobId, step, allSteps, index, youtubeUrl }: Props) {
                 </div>
                 <EditableField
                   value={step.checkpoint}
-                  onSave={(v) => editStep.mutateAsync({ stepId: step.id, fields: { checkpoint: v } })}
+                  onSave={async (v) => { await editStep.mutateAsync({ stepId: step.id, fields: { checkpoint: v } }); }}
                   multiline
                   displayClassName="text-sm text-green-800"
                 />

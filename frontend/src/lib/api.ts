@@ -1,12 +1,13 @@
 import type { Job, Step, UserConfig } from "../types";
 
-// In production VITE_API_URL is set to the deployed backend origin, e.g.
-// https://my-backend.up.railway.app — in dev it's empty and the Vite proxy handles /api.
+// FastAPI now serves the built frontend itself (see backend/app/main.py), so
+// frontend and API share an origin in both dev (via the Vite proxy) and prod.
+// VITE_API_URL is only needed if the frontend is ever split onto its own host again.
 const BACKEND = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 const BASE = `${BACKEND}/api`;
 
-// Frame URLs come back from the API as relative paths (/frames/…).
-// In production we must make them absolute so the browser hits the backend, not Netlify.
+// Frame URLs come back from the API as relative paths (/frames/…), which
+// resolve correctly as long as frontend and API share an origin.
 export function resolveFrameUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   return BACKEND ? `${BACKEND}${url}` : url;
