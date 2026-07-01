@@ -32,9 +32,15 @@ async def init_db():
     from sqlalchemy import text
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        # Additive migration: add columns introduced after initial schema
-        for col_ddl in ["ALTER TABLE jobs ADD COLUMN log_messages JSON"]:
-            try:
+
+    # Additive migration: add columns introduced after initial schema.
+    # Each runs in its own transaction so a "column already exists" failure
+    # (the common case, since create_all above already includes it) only
+    # aborts that one statement instead of poisoning - and silently
+    # rolling back - the create_all transaction on Postgres.
+    for col_ddl in ["ALTER TABLE jobs ADD COLUMN log_messages JSON"]:
+        try:
+            async with engine.begin() as conn:
                 await conn.execute(text(col_ddl))
-            except Exception:
-                pass  # Column already exists
+        except Exception:
+            pass  # Column already exists
